@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LENS | Laptop Ensemble Novi Sad</title>
+    <style>
+        :root {
+            --bg-color: #0d0d0d;
+            --text-color: #00ff41; 
+            --header-color: #222;
+            --font-family: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: #000;
+            color: var(--text-color);
+            font-family: var(--font-family);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        #terminal-window {
+            width: 90%;
+            max-width: 850px;
+            height: 550px;
+            background-color: var(--bg-color);
+            border: 1px solid #333;
+            box-shadow: 0 15px-40px rgba(0,255,65,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #terminal-header {
+            background-color: var(--header-color);
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .red { background: #ff5f56; }
+        .yellow { background: #ffbd2e; }
+        .green { background: #27c93f; }
+
+        #content {
+            padding: 25px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        nav {
+            margin-bottom: 25px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        nav a {
+            color: var(--text-color);
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            background-color: var(--text-color);
+            color: #000;
+        }
+
+        .prompt { color: #555; }
+        .command { color: #fff; font-weight: bold; }
+        
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 1.1em;
+            background-color: var(--text-color);
+            animation: blink 1s infinite;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+
+        @keyframes blink { 50% { opacity: 0; } }
+
+        h1 { font-size: 1.3rem; color: #fff; margin-top: 0; }
+        p { margin-bottom: 15px; font-size: 0.95rem; text-align: justify; }
+        
+        /* Custom scrollbar */
+        #content::-webkit-scrollbar { width: 6px; }
+        #content::-webkit-scrollbar-thumb { background: #333; }
+    </style>
+</head>
+<body>
+
+<div id="terminal-window">
+    <div id="terminal-header">
+        <div class="dot red"></div>
+        <div class="dot yellow"></div>
+        <div class="dot green"></div>
+        <span style="margin-left: 10px; font-size: 12px; color: #777;">user@lens-terminal: ~/novi-sad</span>
+    </div>
+    
+    <div id="content">
+        <nav>
+            <a onclick="showSection('home')">[HOME]</a>
+            <a onclick="showSection('about')">[ABOUT]</a>
+            <a onclick="showSection('concerts')">[CONCERTS]</a>
+            <a onclick="showSection('audio')">[AUDIO]</a>
+            <a onclick="showSection('video')">[VIDEO]</a>
+            <a onclick="showSection('links')">[LINKS]</a>
+            <a onclick="showSection('merch')">[MERCH]</a>
+        </nav>
+
+        <div id="display-area">
+            <span class="prompt">lens@novisad:~$</span> <span id="cmd-text" class="command">cat intro.sh</span>
+            <div id="text-output" style="margin-top: 15px;">
+                <h1>Laptop Ensemble Novi Sad (LENS)</h1>
+                <p>Welcome to the official terminal. Use the directory tabs above to explore our work.</p>
+            </div>
+        </div>
+        <span class="cursor"></span>
+    </div>
+</div>
+
+<script>
+    const sections = {
+        home: "<h1>Home</h1><p>Welcome to the Laptop Ensemble Novi Sad digital hub. We specialize in live electronics, algorithmic music, and networked performance.</p><p>Current Status: <strong>System Active</strong></p>",
+        
+        about: "<h1>About LENS</h1><p>The Laptop Ensemble Novi Sad (LENS) was founded in 2024 at the Academy of Arts in Novi Sad with the aim of exploring and developing the use of laptop computers as musical instruments.</p><p>LENS members are <strong>Jovana Dragojević, Bojan Ožegović, Kosta Ranđelović i Milan Milojković</strong>.</p><p>The ensemble's repertoire includes compositions by 20th and 21st-century authors who created live electronic music, along with electroacoustic improvisations (algorithmic and under direct performer control), and collaborative music-making over the internet.</p><p>LENS’ repertoire (for now) consists of compositions of indeterminism/'non-idiomatic improvisation,' as well as drone, processual, and intuitive music. Thus, LENS’ music seeks to implement principles of openness in the operation of this type of chamber ensemble, both in relation to the musical score and towards participants in the creation of the sound flow.</p>",
+        
+        concerts: "<h1>Concert History / Future</h1><p>> [LOGGED]: Academy of Arts Debut - 2024</p><p>> [UPCOMING]: Pending system update...</p>",
+        
+        audio: "<h1>Audio Repository</h1><p>Streaming 44.1kHz / 24-bit PCM...</p><p>[Audio list coming soon]</p>",
+        
+        video: "<h1>Visual Output</h1><p>Video processing in progress. Connect to external monitor for best results.</p>",
+        
+        links: "<h1>Network Nodes</h1><p>- <a href='#' style='color:white'>Academy of Arts Novi Sad</a></p><p>- <a href='#' style='color:white'>Bandcamp</a></p>",
+        
+        merch: "<h1>Merch Store</h1><p>Error 404: Physical items not found. Digital artifacts only.</p>"
+    };
+
+    function showSection(name) {
+        const display = document.getElementById('text-output');
+        const cmd = document.getElementById('cmd-text');
+        
+        // Visual feedback for navigation
+        cmd.innerText = "run ./load_" + name + ".sh";
+        
+        // Update content
+        display.innerHTML = sections[name];
+        
+        // Scroll to top of output area
+        document.getElementById('content').scrollTop = 0;
+    }
+</script>
+
+</body>
+</html>
