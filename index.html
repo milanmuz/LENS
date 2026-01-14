@@ -17,7 +17,7 @@
             background-color: #000; color: var(--text-color);
             font-family: var(--font-family); margin: 0;
             display: flex; justify-content: center; align-items: center;
-            height: 100vh; height: 100dvh; /* Mobile height fix */
+            height: 100vh; height: 100dvh; 
             overflow: hidden; text-shadow: var(--glow);
         }
 
@@ -36,13 +36,12 @@
 
         #terminal-header {
             background-color: var(--header-color); padding: 10px 20px;
-            display: flex; flex-direction: column; /* Stacked for constant visualizer */
+            display: flex; flex-direction: column;
             border-bottom: 1px solid #333; flex-shrink: 0;
         }
 
         .header-top { display: flex; align-items: center; justify-content: space-between; width: 100%; }
 
-        /* The Visualizer is now constant in the header */
         #visualizer-canvas { 
             width: 100%; height: 50px; background: #000; 
             border-top: 1px solid #222; margin-top: 10px; display: block; 
@@ -72,7 +71,7 @@
         .bb-formula { background: #000; border: 1px solid var(--text-color); color: #fff; padding: 10px; width: 100%; box-sizing: border-box; font-family: inherit; margin-bottom: 15px; display: block; }
         .bb-btn { background: var(--text-color); color: #000; border: none; padding: 8px 15px; cursor: pointer; font-weight: bold; font-family: inherit; }
 
-        #input-line { display: flex; align-items: center; padding: 15px 20px; background: #050505; border-top: 1px solid #222; flex-shrink: 0; }
+        #input-line { display: flex; align-items: center; padding: 15px 20px; background: #050505; border-top: 1px solid #222; flex-shrink: 0; cursor: text; }
         #cmd-input { background: transparent; border: none; color: #fff; font-family: inherit; font-size: 1.1rem; width: 100%; outline: none; }
 
         h1 { font-size: 1.1rem; border-bottom: 1px solid var(--text-color); margin: 0 0 15px 0; display: inline-block; }
@@ -94,7 +93,7 @@
         <div class="header-top">
             <div>
                 <span id="audio-status" style="font-size: 11px; color: #555;">AUDIO: STANDBY</span>
-                <div id="formula-monitor" style="font-size: 9px; color: #444; font-family: monospace; max-width: 400px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">[ CLICK TO INITIALIZE ]</div>
+                <div id="formula-monitor" style="font-size: 9px; color: #444; font-family: monospace; max-width: 400px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">[ TAP TO START ]</div>
             </div>
             <div class="volume-box">
                 <span>VOL:</span>
@@ -121,14 +120,13 @@
         <div id="output-area"></div>
     </div>
 
-    <div id="input-line">
+    <div id="input-line" onclick="document.getElementById('cmd-input').focus()">
         <span style="color:var(--text-color); font-weight:bold; margin-right:10px;">LENS:\></span>
-        <input type="text" id="cmd-input" autofocus autocomplete="off" autocapitalize="none">
+        <input type="text" id="cmd-input" autocomplete="off" autocapitalize="none" spellcheck="false">
     </div>
 </div>
 
 <script>
-    // DATA AND FUNCTIONS KEPT EXACTLY AS ORIGINAL
     const output = document.getElementById('output-area');
     const input = document.getElementById('cmd-input');
     const wrapper = document.getElementById('content-wrapper');
@@ -235,7 +233,6 @@
         const cleanCmd = cmd.toLowerCase().trim();
         if (cleanCmd !== 'bytebeat') {
             mutate();
-            // Using a slight delay to ensure images exist in the new HTML block before glitching
             setTimeout(() => {
                 document.querySelectorAll('.member-img').forEach(img => {
                     img.classList.remove('glitch-active');
@@ -248,11 +245,21 @@
         const html = sections[cleanCmd] ? `<div class="history-block">${sections[cleanCmd]}</div>` : `<div class="history-block">[PARAM_SHIFT]</div>`;
         output.innerHTML += html;
         setTimeout(() => { wrapper.scrollTop = wrapper.scrollHeight; }, 10);
-        input.focus();
+        
+        // Removed input.focus() from here to prevent keyboard from popping on tab-clicks
     }
 
-    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { execute(input.value); input.value = ""; } });
-    execute('home');
+    input.addEventListener('keydown', (e) => { 
+        if (e.key === 'Enter') { 
+            execute(input.value); 
+            input.value = ""; 
+            input.blur(); // Optional: hides keyboard after hitting enter
+        } 
+    });
+
+    // Run home without forcing focus
+    const homeHtml = `<div class="history-block">${sections['home']}</div>`;
+    output.innerHTML = homeHtml;
 </script>
 </body>
 </html>
